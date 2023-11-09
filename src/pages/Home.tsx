@@ -1,7 +1,17 @@
-import { useEffect, useState, ChangeEvent, KeyboardEvent } from "react";
+import { useEffect, useState, useRef, ChangeEvent, KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { onAuthStateChanged } from "firebase/auth";
+import {
+  getDatabase,
+  ref,
+  set,
+  onValue,
+  push,
+  child,
+  update,
+  remove,
+} from "firebase/database";
 import {
   collection,
   getDocs,
@@ -12,28 +22,29 @@ import {
   addDoc,
 } from "firebase/firestore";
 import { auth, db } from "../util/firebase";
-import { BiAddToQueue } from "react-icons/bi";
+import { BiSend } from "react-icons/bi";
 import Item from "../components/home/Item";
-interface ItemsType {
-  item: string;
-  dollar: string;
-  date: string;
-  id: string;
+
+interface MessagesType {
+  email: string;
+  id: string | null;
+  message: string;
+  username: string;
 }
 
 function Home() {
   const navigate = useNavigate();
   const checkSignedStatus = async () => {
-    // onAuthStateChanged(auth, (user) => {
-    //   if (!user) {
-    //     navigate("/Login");
-    //   }
-    // });
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate("/login");
+      }
+    });
   };
-  const [items, setItems] = useState<Array<ItemsType>>([]);
-  const [itemName, setItemName] = useState("");
-  const [dollar, setDollar] = useState("");
+  const [messages, setMessages] = useState<Array<MessagesType>>([]);
+  const [typeText, setTypeText] = useState("");
   const [date, setDate] = useState("");
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     checkSignedStatus();
@@ -51,53 +62,44 @@ function Home() {
   }, []);
 
   const getData = async () => {
-    const querySnapshot = await getDocs(collection(db, "account"));
-    const data = querySnapshot.docs
-      .map((doc) => doc.data())
-      .sort((a, b) =>
-        a.date < b.date ? -1 : a.date > b.date ? 1 : 0
-      ) as Array<ItemsType>;
+    const userRef = ref(db, "users/");
+    onValue(userRef, (snapshot) => {
+      const data = snapshot.val();
+      const dataArray = Object.keys(data).map((key) => {
+        return data[key];
+      }) as Array<MessagesType>;
 
-    setItems(data);
+      setMessages(dataArray);
+    });
   };
 
   const postData = async () => {
-    if (dollar === "" || itemName === "") return;
-    // await setDoc(doc(collection(db, "account")), {
-    //   dollar,
-    //   item: itemName,
-    //   date,
-    // });
+    if (typeText === "") return;
 
-    // await setDoc(doc(db, "account", "admin-3"), {
-    //   dollar,
-    //   item: itemName,
-    //   date,
+    const newKey = push(child(ref(db), "users/")).key;
+    // set(ref(db, "users/" + newKey), {
+    //   username: "jacky",
+    //   email: "jackyemail",
+    //   message: "hi333",
+    //   id: newKey,
     // });
-    const docRef = await addDoc(collection(db, "account"), {
-      dollar,
-      item: itemName,
-      date,
-      id: "",
-    });
-    const id = docRef.id;
-    const docRefWithId = doc(db, "account", id);
-    await updateDoc(docRefWithId, {
-      id,
-    });
+    const updates: { [key: string]: MessagesType } = {};
+    updates["/users/" + newKey] = {
+      username: "John Doe",
+      email: "johnDoe@gmail.com",
+      message: typeText,
+      id: newKey,
+    };
 
-    setItemName("");
-    setDollar("");
-    await getData();
+    await update(ref(db), updates);
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+    setTypeText("");
   };
-  const handleItemNameChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setItemName(event.target.value);
-  };
-  const handleDollarChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    event.target.value = event.target.value
-      .replace(/[^0-9]/g, "")
-      .replace(/^0+/, "");
-    setDollar(event.target.value);
+  const handleTypeTextChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    setTypeText(event.target.value);
   };
   const enterKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
     if (event.key === "Enter") {
@@ -107,17 +109,14 @@ function Home() {
 
   return (
     <Main>
-      <Container>
-        {items.map((v) => {
-          const monDay = `${v.date.split("/")[1]}/${v.date.split("/")[2]}`;
+      <Container ref={chatContainerRef}>
+        {messages.map((v) => {
           return (
             <Item
-              item={v.item}
-              dollar={v.dollar}
-              date={monDay}
               id={v.id}
+              username={v.username}
+              message={v.message}
               key={v.id}
-              getData={getData}
             />
           );
         })}
@@ -126,21 +125,13 @@ function Home() {
         <input
           type="text"
           id="expenseItem"
-          placeholder="Item"
-          onChange={handleItemNameChange}
-          value={itemName}
-          onKeyDown={enterKeyDown}
-        />
-        <input
-          type="text"
-          id="expenseDollar"
-          placeholder="Dollars"
-          onChange={handleDollarChange}
-          value={dollar}
+          placeholder="Say something ..."
+          onChange={handleTypeTextChange}
+          value={typeText}
           onKeyDown={enterKeyDown}
         />
         <button onClick={postData}>
-          <BiAddToQueue />
+          <BiSend />
         </button>
       </div>
     </Main>
@@ -218,10 +209,6 @@ const Container = styled.div`
   border-radius: 1.5rem;
   padding: 1rem;
   overflow: auto;
-  display: grid;
-  grid-gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
-  grid-auto-rows: min-content;
 `;
 
 export default Home;
