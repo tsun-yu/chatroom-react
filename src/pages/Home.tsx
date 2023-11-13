@@ -34,32 +34,41 @@ interface MessagesType {
 
 function Home() {
   const navigate = useNavigate();
-  const checkSignedStatus = async () => {
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        navigate("/login");
-      }
-    });
-  };
   const [messages, setMessages] = useState<Array<MessagesType>>([]);
   const [typeText, setTypeText] = useState("");
+  const [email, setEmail] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [date, setDate] = useState("");
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const checkSignedStatus = async () => {
+    onAuthStateChanged(auth, (user) => {
+      if (!user) navigate("/login");
 
+      setEmail(user?.email ? user.email : "");
+      setDisplayName(user?.displayName ? user.displayName : "");
+    });
+  };
   useEffect(() => {
     checkSignedStatus();
-    const currTime = new Date();
-    const [currYr, currMon, currDate] = [
-      currTime.getFullYear(),
-      currTime.getMonth() + 1,
-      currTime.getDate(),
-    ];
-    const dateStr = `${currYr}/${currMon < 10 ? "0" + currMon : currMon}/${
-      currDate < 10 ? "0" + currDate : currDate
-    }`;
-    setDate(dateStr);
+    // const currTime = new Date();
+    // const [currYr, currMon, currDate] = [
+    //   currTime.getFullYear(),
+    //   currTime.getMonth() + 1,
+    //   currTime.getDate(),
+    // ];
+    // const dateStr = `${currYr}/${currMon < 10 ? "0" + currMon : currMon}/${
+    //   currDate < 10 ? "0" + currDate : currDate
+    // }`;
+    // setDate(dateStr);
     getData();
   }, []);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const getData = async () => {
     const userRef = ref(db, "users/");
@@ -85,8 +94,8 @@ function Home() {
     // });
     const updates: { [key: string]: MessagesType } = {};
     updates["/users/" + newKey] = {
-      username: "John Doe",
-      email: "johnDoe@gmail.com",
+      username: displayName,
+      email,
       message: typeText,
       id: newKey,
     };
@@ -111,8 +120,10 @@ function Home() {
     <Main>
       <Container ref={chatContainerRef}>
         {messages.map((v) => {
+          const isCurrentUser = displayName === v.username;
           return (
             <Item
+              isCurrentUser={isCurrentUser}
               id={v.id}
               username={v.username}
               message={v.message}

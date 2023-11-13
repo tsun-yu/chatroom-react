@@ -1,6 +1,7 @@
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import { ChangeEvent, KeyboardEvent, useState } from "react";
 import { errorMessages } from "src/util/errorMessages";
@@ -20,15 +21,23 @@ function LoginSection(props: LoginSectionProps) {
   const [password, setPassword] = useState("admin1234");
   const [confirm, setConfirm] = useState("");
   const [errMsg, setErrMsg] = useState("");
+  const [displayName, setDisplayName] = useState("");
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    displayName: string
+  ) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
-      // const user = userCredential.user;
+      const user = userCredential.user;
+      await updateProfile(user, {
+        displayName,
+      });
       // setIsAuth(auth.currentUser);
     } catch (error: any) {
       const errorCode = error.code;
@@ -67,13 +76,20 @@ function LoginSection(props: LoginSectionProps) {
   const handleConfirmChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setConfirm(event.target.value);
   };
+  const handleDisplayNameChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ): void => {
+    setDisplayName(event.target.value);
+  };
   const handleLoginClick = () => {
     if (!hasMember && password !== confirm) {
       setErrMsg("Passwords didn't match. Try again.");
       return;
     }
 
-    hasMember ? signIn(email, password) : signUp(email, password);
+    hasMember
+      ? signIn(email.trim(), password.trim())
+      : signUp(email.trim(), password.trim(), displayName.trim());
   };
   const enterKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
     if (event.key === "Enter") {
@@ -99,6 +115,20 @@ function LoginSection(props: LoginSectionProps) {
       {errMsg ? <ErrorMessage>{errMsg}</ErrorMessage> : <></>}
       <LoginElement>
         <h2>{label}</h2>
+        {!hasMember ? (
+          <div className="login__input">
+            <input
+              type="text"
+              id="username"
+              placeholder="Username"
+              onChange={handleDisplayNameChange}
+              value={displayName}
+              onKeyDown={enterKeyDown}
+            />
+          </div>
+        ) : (
+          <></>
+        )}
         <div className="login__input">
           <input
             type="email"
