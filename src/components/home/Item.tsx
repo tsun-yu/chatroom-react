@@ -14,14 +14,17 @@ interface ItemProps {
   id: string | null;
   username: string;
   message: string;
+  isCurrentUser: boolean;
 }
 
 function Item(props: ItemProps) {
-  const { username, message } = props;
-
+  const { username, message, isCurrentUser } = props;
+  const messageClass = classNames({
+    "msg--right": isCurrentUser,
+  });
   return (
     <>
-      <Msg>
+      <Msg className={messageClass}>
         <p>{username}</p>
         <div>{message}</div>
       </Msg>
@@ -30,6 +33,14 @@ function Item(props: ItemProps) {
 }
 
 const Msg = styled.div`
+  &.msg--right {
+    text-align: end;
+
+    div {
+      background-color: var(--card-hover);
+    }
+  }
+
   p {
     margin: 0.5rem;
   }
