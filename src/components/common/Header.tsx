@@ -12,6 +12,26 @@ interface HeaderProps {
   setIsChecked: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+function Header(props: HeaderProps) {
+  const logOut = async () => {
+    await signOut(auth);
+  };
+  return (
+    <Container>
+      <div>
+        <Hamburger {...props} />
+        <h1 className="header__logo">
+          <TbBrandFirebase />
+          Chatroom - React
+        </h1>
+      </div>
+      <div className="header__member" onClick={logOut}>
+        <BsPersonCircle />
+      </div>
+    </Container>
+  );
+}
+
 const Container = styled.header`
   background-color: var(--bg-secondary);
   display: flex;
@@ -37,25 +57,5 @@ const Container = styled.header`
     cursor: pointer;
   }
 `;
-
-function Header(props: HeaderProps) {
-  const logOut = async () => {
-    await signOut(auth);
-  };
-  return (
-    <Container>
-      <div>
-        <Hamburger {...props} />
-        <h1 className="header__logo">
-          <TbBrandFirebase />
-          Firebase - React
-        </h1>
-      </div>
-      <div className="header__member" onClick={logOut}>
-        <BsPersonCircle />
-      </div>
-    </Container>
-  );
-}
 
 export default Header;

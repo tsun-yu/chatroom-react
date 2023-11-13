@@ -42,7 +42,7 @@ function Sidebar() {
         <p>
           <SiReact />
         </p>
-        FireBase - React
+        React
       </a>
       <a href="">
         <p>
