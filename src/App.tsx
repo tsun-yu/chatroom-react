@@ -8,8 +8,13 @@ import { useState } from "react";
 import classNames from "classnames";
 
 const Body = styled.div`
+  @supports (height: 100dvh) {
+    height: 100dvh;
+  } @else {
+    height: 100vh;
+  }
   width: 100%;
-  height: 100vh;
+  /* height: 100vh; */
   display: grid;
   grid-template-rows: 4rem minmax(0, 1fr);
   grid-template-columns: 4.875rem minmax(0, 1fr);

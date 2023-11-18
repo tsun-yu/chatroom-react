@@ -1,29 +1,11 @@
-import { useEffect, useState, useRef, ChangeEvent, KeyboardEvent } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { child, onValue, push, ref, update } from "firebase/database";
+import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
+import { BiSend } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { onAuthStateChanged } from "firebase/auth";
-import {
-  getDatabase,
-  ref,
-  set,
-  onValue,
-  push,
-  child,
-  update,
-  remove,
-} from "firebase/database";
-import {
-  collection,
-  getDocs,
-  doc,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  addDoc,
-} from "firebase/firestore";
-import { auth, db } from "../util/firebase";
-import { BiSend } from "react-icons/bi";
 import Item from "../components/home/Item";
+import { auth, db } from "../util/firebase";
 
 interface MessagesType {
   email: string;
@@ -71,7 +53,7 @@ function Home() {
   }, [messages]);
 
   const getData = async () => {
-    const userRef = ref(db, "users/");
+    const userRef = ref(db, "chatroom/");
     onValue(userRef, (snapshot) => {
       const data = snapshot.val();
       const dataArray = Object.keys(data).map((key) => {
@@ -85,15 +67,15 @@ function Home() {
   const postData = async () => {
     if (typeText === "") return;
 
-    const newKey = push(child(ref(db), "users/")).key;
-    // set(ref(db, "users/" + newKey), {
+    const newKey = push(child(ref(db), "chatroom/")).key;
+    // set(ref(db, "chatroom/" + newKey), {
     //   username: "jacky",
     //   email: "jackyemail",
     //   message: "hi333",
     //   id: newKey,
     // });
     const updates: { [key: string]: MessagesType } = {};
-    updates["/users/" + newKey] = {
+    updates["/chatroom/" + newKey] = {
       username: displayName,
       email,
       message: typeText,
