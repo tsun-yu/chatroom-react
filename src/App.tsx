@@ -8,11 +8,6 @@ import { useState } from "react";
 import classNames from "classnames";
 
 const Body = styled.div`
-  @supports (height: 100dvh) {
-    height: 100dvh;
-  } @else {
-    height: 100vh;
-  }
   width: 100%;
   /* height: 100vh; */
   display: grid;
@@ -28,6 +23,12 @@ const Body = styled.div`
 
   &.expand {
     grid-template-columns: 16rem minmax(0, 1fr);
+  }
+
+  @supports (height: 100dvh) {
+    height: 100dvh;
+  } @else {
+    height: 100vh;
   }
 `;
 
