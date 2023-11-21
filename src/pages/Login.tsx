@@ -1,7 +1,6 @@
 import classNames from "classnames";
 import { onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import LoginSection from "../components/loginPage/LoginSection";
 import { auth } from "../util/firebase";
@@ -11,14 +10,13 @@ function Login() {
   const [hasMember, setHasMember] = useState(true);
   const loginClass = classNames({ active: hasMember }, "switch__option");
   const signupClass = classNames({ active: !hasMember }, "switch__option");
-  const navigate = useNavigate();
   const checkSignedStatus = async () => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        navigate("/");
-      } else {
-        setIsLogin(false);
+        setIsLogin(true);
+        return;
       }
+      setIsLogin(false);
     });
   };
 
@@ -33,18 +31,24 @@ function Login() {
   return (
     <Container>
       <div className="login">
-        <div className="switch">
-          <div className={loginClass} onClick={hasMemeberToggle}>
-            Log In
-          </div>
-          <div className={signupClass} onClick={hasMemeberToggle}>
-            Sign Up
-          </div>
-        </div>
-        {hasMember ? (
-          <LoginSection label="Login" hasMember={hasMember} />
+        {isLogin ? (
+          <h1>Logged In</h1>
         ) : (
-          <LoginSection label="Signup" hasMember={hasMember} />
+          <>
+            <div className="switch">
+              <div className={loginClass} onClick={hasMemeberToggle}>
+                Log In
+              </div>
+              <div className={signupClass} onClick={hasMemeberToggle}>
+                Sign Up
+              </div>
+            </div>
+            {hasMember ? (
+              <LoginSection label="Login" hasMember={hasMember} />
+            ) : (
+              <LoginSection label="Signup" hasMember={hasMember} />
+            )}
+          </>
         )}
       </div>
     </Container>
@@ -62,6 +66,10 @@ const Container = styled.div`
 
   .login {
     width: min(100%, 400px);
+
+    > h1 {
+      text-align: center;
+    }
 
     .switch {
       background-color: var(--input-secondary);

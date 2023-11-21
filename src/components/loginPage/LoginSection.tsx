@@ -9,6 +9,7 @@ import { auth } from "src/util/firebase";
 import styled from "styled-components";
 import Button from "../Button";
 import classNames from "classnames";
+import { useNavigate } from "react-router-dom";
 
 interface LoginSectionProps {
   label: string;
@@ -22,6 +23,7 @@ function LoginSection(props: LoginSectionProps) {
   const [confirm, setConfirm] = useState("");
   const [errMsg, setErrMsg] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const navigate = useNavigate();
 
   const signUp = async (
     email: string,
@@ -38,7 +40,7 @@ function LoginSection(props: LoginSectionProps) {
       await updateProfile(user, {
         displayName,
       });
-      // setIsAuth(auth.currentUser);
+      navigate("/");
     } catch (error: any) {
       const errorCode = error.code;
       const errorMessage = error.message;
@@ -55,6 +57,7 @@ function LoginSection(props: LoginSectionProps) {
         email,
         password
       );
+      navigate("/");
       // const user = userCredential.user;
       // setIsAuth(auth.currentUser);
     } catch (error: any) {
