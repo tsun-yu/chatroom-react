@@ -32,16 +32,6 @@ function Home() {
   };
   useEffect(() => {
     checkSignedStatus();
-    // const currTime = new Date();
-    // const [currYr, currMon, currDate] = [
-    //   currTime.getFullYear(),
-    //   currTime.getMonth() + 1,
-    //   currTime.getDate(),
-    // ];
-    // const dateStr = `${currYr}/${currMon < 10 ? "0" + currMon : currMon}/${
-    //   currDate < 10 ? "0" + currDate : currDate
-    // }`;
-    // setDate(dateStr);
     getData();
   }, []);
 

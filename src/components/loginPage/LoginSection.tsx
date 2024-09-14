@@ -85,14 +85,16 @@ function LoginSection(props: LoginSectionProps) {
     setDisplayName(event.target.value);
   };
   const handleLoginClick = () => {
-    if (!hasMember && password !== confirm) {
-      setErrMsg("Passwords didn't match. Try again.");
+    if (hasMember) {
+      signIn(email.trim(), password.trim());
       return;
     }
 
-    hasMember
-      ? signIn(email.trim(), password.trim())
-      : signUp(email.trim(), password.trim(), displayName.trim());
+    if (password !== confirm) {
+      setErrMsg("Passwords didn't match. Try again.");
+      return;
+    }
+    signUp(email.trim(), password.trim(), displayName.trim());
   };
   const enterKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
     if (event.key === "Enter") {
@@ -102,12 +104,14 @@ function LoginSection(props: LoginSectionProps) {
   const emailInpClass = classNames({
     error:
       errMsg === "Account doesn't exist" ||
-      errMsg === "That Email is taken. Try another.",
+      errMsg === "That Email is taken. Try another." ||
+      errMsg === "Wrong Email or Password",
   });
   const passwordInpClass = classNames({
     error:
       errMsg === "Wrong Password" ||
-      errMsg === "Passwords didn't match. Try again.",
+      errMsg === "Passwords didn't match. Try again." ||
+      errMsg === "Wrong Email or Password",
   });
   const confirmInpClass = classNames({
     error: errMsg === "Passwords didn't match. Try again.",
