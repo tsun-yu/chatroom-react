@@ -38,19 +38,19 @@ const Aside = styled.aside`
 function Sidebar() {
   return (
     <Aside>
-      <a className="aside__link--active" href="">
+      <a className="aside__link--active">
         <p>
           <SiReact />
         </p>
         React
       </a>
-      <a href="">
+      <a href="https://chatroom-vue.vercel.app/">
         <p>
           <SiVuedotjs />
         </p>
-        Vue3 (Coming soon)
+        Vue3
       </a>
-      <a href="">
+      <a>
         <p>
           <SiSvelte />
         </p>
