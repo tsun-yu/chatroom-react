@@ -18,8 +18,8 @@ interface LoginSectionProps {
 
 function LoginSection(props: LoginSectionProps) {
   const { label, hasMember } = props;
-  const [email, setEmail] = useState("admin@gmail.com");
-  const [password, setPassword] = useState("admin1234");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [errMsg, setErrMsg] = useState("");
   const [displayName, setDisplayName] = useState("");
